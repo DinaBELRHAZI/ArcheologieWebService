@@ -75,100 +75,89 @@
                     style: google.maps.NavigationControlStyle.ZOOM_PAN
                 }
             });
-            //function appellée pour afficher la streetView à partir de coordonnées
-            function streetView(myPointStreet){
-                var panorama = new google.maps.StreetViewPanorama(
-                    document.getElementById('streetView'), {
-                        position: myPointStreet,
-                        pov: {
-                            heading: 34,
-                            pitch: 10
-                        }
-                    });
-                map.setStreetView(panorama);
-            }
+            
+            
             // Déclaration de la infoWindow
             var infoWindow = new google.maps.InfoWindow();
             
             
-            
-            $(document).ready(function() { 
-                alert("jquery ok");
-               
-                $("#fetch").click(function(event){ 
-                alert("jquery click  ok");
+            /* Appel du webservice  */
+             $(document).ready(function() { 
+                
             	    $.getJSON('http://localhost:8086/JerseyArcheo/webresources/sites/', function(Json) { 
             	       
             	        alert("retour ok"); 
-            	        //alert( tabmonument["liste des monuments"])
-            	        jsonvar=Json["liste des sites"];
+            	        jsonvar=Json["liste des sites archéologiques"];
             	        
-            	        for (var i = 0; i < jsonvar.length; i++) alert(jsonvar[i].Nom_du_site );
             	        afficheMarker(jsonvar);
-            	
             		});
-               });
-            });
-            // boucle sur la liste reçue du controller listeFranceConvert()
-          for (var i = 0; i < markers.length; i++) {
-            	
+            }); 
             
-                var NomDuSite = "{{ list.getNomDuSite }}";
-                var num = "{{ list.id}}";
+         	function afficheMarker( jsonvar ) {      
+            	  // boucle sur la liste jsonvar
+		          for (var i = 0; i < jsonvar.length; i++) {
+		            
+		        	  var NomDuSite = jsonvar[i].Nom_du_site;
+		              var num = jsonvar[i].ID;
+		            
+			          //Création d'un tableau regroupant tous les markers
+			          var markers = [];
+		            
+		              // Déclaration des coordonnées
+		              newPoint1 = new google.maps.LatLng(jsonvar[i].Lambert_X, jsonvar[i].Lambert_Y);
+		              //alert(newPoint1);
+		              console.log("Coordonnées : "+newPoint1);
+		              console.log("ID = "+ jsonvar[i].ID)
+		              
+		              // Déclaration des paramètres récupérer du tableau
+		              var commune = jsonvar[i].Commune;
+					  var departement = jsonvar[i].Departement;
+					  var periodes = jsonvar[i].Periodes;
+					  var region = jsonvar[i].Region;
+					  
+		              // Création d'un marker
+		              var marker = new google.maps.Marker({
+		              	position: newPoint1,
+		                title: periodes,
+		                map: map
+		              });
+		              
+		              // enregistrement dans le tableau des markers
+		              markers.push(marker);
+		              
+		              // InfoWindow
+		              (function (marker, commune1, departement1, periodes1, region1,NomDuSite1,num1, pointrecu) {
+		                    google.maps.event.addListener(marker, "click", function (e) {
+		                        //Contenu de l'infoWindow
+		                        infoWindow.setContent(
+		                            "<div class='pano1' >"
+		                            //+"<div id='pano"+commune+"' class='panophoto' > </div>"
+		                            +'<a><b>Nom du site : </b></a>'
+		                            +'<a>'+NomDuSite1+'</a>'
+		                            +'<hr>'
+		                            +'<a><b>Adresse : </b></a>'
+		                            +'<a>'+region1+'</a>'
+		                            +'<a>'+departement1+', '+commune1+'</a>'
+		                            +'<hr>'
+		                            +'<a><b>Période : </b></a>'
+		                            +'<a>'+periodes1+'</a>'
+		                            +"</div>"
+		                        );
+		                        //ouveture de l'infoWindow avec paramètres : le nom de la carte et le marker
+		                        infoWindow.open(map, marker);
+		                    });
+		                 //Variables déclarées plus haut mis en paramètre
+		              }) (marker, commune, departement, periodes, region,NomDuSite,num, newPoint1)
+		            
+		          }// Fin de la boucle For
+		          
+		          var markerCluster = new MarkerClusterer(map, markers, {
+		              imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
+		          });
             
-	            //Création d'un tableau regroupant tous les markers
-	            var markers = [];
-            
-                // Déclaration des coordonnées
-                newPoint1 = new google.maps.LatLng(46.20, 2.349903);
-                //alert(newPoint1);
-                // Déclaration des paramètres récupérer du tableau
-                var commune = "{{ tab.0.Commune }}";
-                var departement = "{{ tab.0.Departement }}";
-                var periodes = "{{ tab.0.Periodes }}";
-                var region = "{{ tab.0.Region }}";
-                    // Création d'un marker
-                    var marker = new google.maps.Marker({
-                        position: newPoint1,
-                        title: periodes,
-                        map: map
-                    });
-                    // enregistrement dans le tableau des markers
-                   markers.push(marker);
-              // InfoWindow
-                (function (marker, commune1, departement1, periodes1, region1,NomDuSite1,num1, pointrecu) {
-                    google.maps.event.addListener(marker, "click", function (e) {
-                        //Contenu de l'infoWindow
-                        infoWindow.setContent(
-                            "<div class='pano1' >"
-                            //+"<div id='pano"+commune+"' class='panophoto' > </div>"
-                            +'<a><b>Nom du site : </b></a>'
-                            +'<a>'+NomDuSite1+'</a>'
-                            +'<hr>'
-                            +'<a><b>Adresse : </b></a>'
-                            +'<a>'+region1+'</a>'
-                            +'<a>'+departement1+', '+commune1+'</a>'
-                            +'<hr>'
-                            +'<a><b>Période : </b></a>'
-                            +'<a>'+periodes1+'</a>'
-                            +'<hr>'
-                            + "<a class='btn btn-outline-primary' id='btn_plus' href='/france/liste/site/"+num1+"' >Détails </a>"
-                            +"</div>"
-                        );
-                        //ouveture de l'infoWindow avec paramètres : le nom de la carte et le marker
-                        infoWindow.open(map, marker);
-                        //appel de la fonction streetView + paramètre pointrecu (newPoint1)
-                        streetView(pointrecu);
-                    });
-                    //Variables déclarées plus haut mis en paramètre
-                }) (marker, commune, departement, periodes, region,NomDuSite,num, newPoint1)
-            // Fin de la boucle For
-          }
-            var markerCluster = new MarkerClusterer(map, markers, {
-                imagePath:
-                    "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
-            });
+        	}/* Fin afficheMarker */      
         }// FIN initMap
+        
         window.onload = function(){
             // Fonction d'initialisation qui s'exécute lorsque le DOM est chargé
             initMap();
