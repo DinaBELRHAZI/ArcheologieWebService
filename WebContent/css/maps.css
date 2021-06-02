@@ -1,0 +1,77 @@
+#map{ /* la carte DOIT avoir une hauteur sinon elle n'apparaît pas */
+    height:700px;
+    /* width: 700px;
+     left: 600px;*/
+    z-index: 1;
+}
+
+body{
+    background-color: black;
+}
+
+/* header */
+.header {
+    background-color: black;
+}
+
+.text-center {
+    color: azure;
+    font-size: 4.5em;
+    font-weight: 200;
+   /* padding-top: 3%;*/
+}
+/* Fin header */
+
+#btn-return{
+    position: absolute;
+    top: 50px;
+    left: 50px;
+}
+
+#streetView{
+    width: 300px;
+    position: absolute;
+    height: 500px;
+    top:150px;
+    left: 80px;
+    z-index: 3;
+    /*border: 1rem solid;*/
+}
+
+#pano-info {
+
+    width: 500px;
+    position: absolute;
+    height: 500px;
+    top:145px;
+    left: 75px;
+    z-index: 3;
+    background-color: aqua;
+}
+
+
+/* InfoWindow */
+.gm-style .gm-style-iw-c{
+    padding: 0;
+}
+
+.gm-style .gm-style-iw-t::after{
+    background: black;
+}
+
+
+
+.pano1{
+    width:auto;
+    min-height:100px;
+    background-color: black;
+    /*background-image: url("../images/archeo_form.jpg");*/
+    color: azure;
+    padding: 5%;
+}
+
+p{
+    font-size: 1.3em;
+}
+
+/* Fin InfoWindow */

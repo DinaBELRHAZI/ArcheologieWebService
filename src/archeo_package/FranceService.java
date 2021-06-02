@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.ws.rs.Consumes;
@@ -35,7 +37,7 @@ public class FranceService {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
-    public String  getListeMonuments() throws ClassNotFoundException, SQLException, ServletException, IOException {
+    public String  getListeSites() throws ClassNotFoundException, SQLException, ServletException, IOException {
 
 
 			
@@ -60,7 +62,7 @@ public class FranceService {
 			ResultSet resulset = statement.executeQuery(query);
 		
 			 
-			JSONArray arrayMonuments = new JSONArray();
+			JSONArray arraySites = new JSONArray();
 			
 			JSONObject jsonObject = new JSONObject();
 
@@ -76,18 +78,16 @@ public class FranceService {
 				String X = Lambert_X.replace(',', '.');
 				String Y = Lambert_Y.replace(',', '.');
 				
-//				Cast String en Double
-				double lat = Double.parseDouble(X); 
-				double lng = Double.parseDouble(Y); 
-				System.out.println(lat + " et " + lng);
-				
-//				Convertion Lambert93 vers WSG84 
-				LambertPoint pt = Lambert.convertToWGS84Deg(lat, lng, LambertZone.LambertI);
-				System.out.println("Point latitude:" + pt.getY() + " longitude:" + pt.getX());
-				 
+//				Convertion Lambert93 vers WSG84
+				Map<String, Double> coord = Convert.convert(X, Y);
+				Double lat = coord.get("lat");
+				Double lng = coord.get("lng");
+				System.out.println(X + " & " + Y);
+
+//				Récupère les données de la bdd
 				record.put("ID", resulset.getInt(1));
-				record.put("Lambert_X", pt.getX());
-				record.put("Lambert_Y", pt.getY());
+				record.put("Lambert_X", lat);
+				record.put("Lambert_Y", lng);
 				record.put("Region", resulset.getString(4));
 				record.put("Departement", resulset.getString(5));
 				record.put("Commune", resulset.getString(6));
@@ -97,13 +97,13 @@ public class FranceService {
 				record.put("Periodes", resulset.getString(10));
 				record.put("Themes", resulset.getString(11));
 				record.put("Type_intervention", resulset.getString(12));
-				arrayMonuments.put(record);
+				arraySites.put(record);
 				
 				
 				System.out.println(resulset.getString(2)+ " "+ resulset.getString(3));
 				
 			} 
-			String Json =  jsonObject.put("liste des sites archéologiques", arrayMonuments).toString();
+			String Json =  jsonObject.put("liste des sites archéologiques", arraySites).toString();
 
 			return Json;
 		
@@ -141,34 +141,32 @@ public class FranceService {
 			ResultSet resulset = statement.executeQuery(query);
 			
 			 
-			JSONArray arrayMonuments = new JSONArray();
+			JSONArray arraySites = new JSONArray();
 			
 			JSONObject jsonObject = new JSONObject();
 
 			
 			while(resulset.next()){
 				
-				JSONObject record = new JSONObject();
+JSONObject record = new JSONObject();
 				
 				String Lambert_X = resulset.getString(2);
 	            String Lambert_Y = resulset.getString(3);
+	            
 //	            Remplacement de la virgule en point
 				String X = Lambert_X.replace(',', '.');
 				String Y = Lambert_Y.replace(',', '.');
 				
-//				Cast String en Double
-				double lat = Double.parseDouble(X); 
-				double lng = Double.parseDouble(Y); 
-				
-				System.out.println(lat + " et " + lng);
-				
-//				Convertion Lambert93 vers WSG84 
-				LambertPoint pt = Lambert.convertToWGS84Deg(lat, lng, LambertZone.LambertI);
-				System.out.println("Point latitude:" + pt.getY() + " longitude:" + pt.getX());
-				
+//				Convertion Lambert93 vers WSG84
+				Map<String, Double> coord = Convert.convert(X, Y);
+				Double lat = coord.get("lat");
+				Double lng = coord.get("lng");
+				System.out.println(X + " & " + Y);
+
+//				Récupère les données de la bdd
 				record.put("ID", resulset.getInt(1));
-				record.put("Lambert_X", pt.getX());
-				record.put("Lambert_Y", pt.getY());
+				record.put("Lambert_X", lat);
+				record.put("Lambert_Y", lng);
 				record.put("Region", resulset.getString(4));
 				record.put("Departement", resulset.getString(5));
 				record.put("Commune", resulset.getString(6));
@@ -178,13 +176,13 @@ public class FranceService {
 				record.put("Periodes", resulset.getString(10));
 				record.put("Themes", resulset.getString(11));
 				record.put("Type_intervention", resulset.getString(12));
-				arrayMonuments.put(record);
+				arraySites.put(record);
 				
 				
 				System.out.println(resulset.getString(2)+ " "+ resulset.getString(3));
 				
 			} 
-			String Json =  jsonObject.put("liste des sites archéologiques", arrayMonuments).toString();
+			String Json =  jsonObject.put("liste des sites archéologiques", arraySites).toString();
 
 			return Json;
 			
